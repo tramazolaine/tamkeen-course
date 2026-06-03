@@ -54,13 +54,15 @@ class ProductController extends Controller
 
     public function reduceStock(Product $product, Request $request)
     {
-        $amount = $request->amount;
+        $validated = $request->validate([
+            'amount' => ['required', 'integer', 'min:1'],
+        ]);
+        $amount = $validated['amount'];
         if ($amount > $product->quantity) {
             throw ValidationException::withMessages(['amount' => 'The amount exceeds the available stock.']);
-        } else {
-            $product->update(['quantity' => $product->quantity - $amount]);
-
-            return $product;
         }
+        $product->update(['quantity' => $product->quantity - $amount]);
+
+        return $product;
     }
 }
